@@ -1,0 +1,8 @@
+This is the basic algorithm I plan to use for the autonomous soccer robots. 
+
+The first step is receiving information from the Swarm Server.
+
+The robots will then need to make decisions based on this information. These decisions include things such as; advancing towards the ball,
+lining up a shot on the goal, taking a shot at the goal and avoiding other robots. 
+
+
