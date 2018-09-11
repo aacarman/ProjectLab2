@@ -37,4 +37,3 @@ while(1):       ##creates an infinite loop to continually retrieve and output da
     ball_x = data['Ball']['Object Center']['X']
     ball_y = data['Ball']['Object Center']['Y']
     sleep(1)    ##sleeps for 1 second
-    
