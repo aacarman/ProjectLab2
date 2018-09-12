@@ -1,0 +1,6 @@
+I built a basic circuit in which I use an Arduino to control the solenoid. There are two main components are used in this circuit.
+The TIP120 has three pins. One is called Base, which we will connect to any of the Arduino PWM pins. 
+Through the Base pin, the Arduino can tell the TIP120 how much power to supply to the motor from the external battery pack.
+As for the 1N4004 diode, it allows current to pass in one direction from positive to negative but will block any stray current that 
+tries to go in the opposite direction, which might have undesirable effects on the circuit.
+You can take this basic circuit and replace the solenoid with other any DC motor devices and this circuit still can be used.
