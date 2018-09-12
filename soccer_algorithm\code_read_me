@@ -5,5 +5,7 @@ The first step is receiving information from the Swarm Server.
 The robots will then need to make decisions based on this information. These decisions include things such as; advancing towards the ball,
 lining up a shot on the goal, taking a shot at the goal and avoiding other robots. 
 
-
+Currently each robot can be in one of four states: Stopped and receiving information, moving towards the ball, kicking the ball 
+and Repositioning. I believe that these four states are sufficient enough to accomplish the prime objective. There is not much to add as 
+of today in terms of code becuase coding begins after this Wednesday.
 
