@@ -1,11 +1,143 @@
-This is the basic algorithm I plan to use for the autonomous soccer robots. 
+//This is the basic algorithm I plan to use for the autonomous soccer robots. 
 
-The first step is receiving information from the Swarm Server.
+//The first step is receiving information from the Swarm Server.
 
-The robots will then need to make decisions based on this information. These decisions include things such as; advancing towards the ball,
-lining up a shot on the goal, taking a shot at the goal and avoiding other robots. 
+//The robots will then need to make decisions based on this information. These decisions include things such as; advancing towards the ball,
+//lining up a shot on the goal, taking a shot at the goal and avoiding other robots. 
 
-Currently each robot can be in one of four states: Stopped and receiving information, moving towards the ball, kicking the ball 
-and Repositioning. I believe that these four states are sufficient enough to accomplish the prime objective. There is not much to add as 
-of today in terms of code becuase coding begins after this Wednesday.
+//Currently each robot can be in one of four states: Stopped and receiving information, moving towards the ball, kicking the ball 
+//and Repositioning. I believe that these four states are sufficient enough to accomplish the prime objective. There is not much to add as 
+//of today in terms of code becuase coding begins after this Wednesday.
+  
+//-------------------------------------------------------------------------------------------------------------------------------------
+  
+//Here is the basic decision making code. Coded in the Arduino IDE.
+
+// Code for soccer playing robots. Made by Ryan Gray. Copyright 2018
+// A raspberry pi pulls information from a server and sends this info to the arduino. The arduino will use this information to play soccer. 
+// The arduino will be receiving information using SPI master/slave and the data is received by use of RF. 
+
+int Ball_x = random(0,256);
+int Ball_y = random(0,128);
+int Self_x = random(0,256);
+int Self_y = random(0,128);
+int Other_x = random(0,256);
+int Other_y = random(0,128);
+int distance_S = 0;
+int distance_O = 0;
+int state = 0;
+unsigned long update_t = 0;
+int n = 1;
+int turning_f = 0;
+int moving_f = 0;
+
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  randomSeed(1);
+
+}
+
+void loop() {
+  // code for testing. Generates random (x,y) coords
+
+    update_t = millis();
+
+    Ball_x = random(0,256);
+    Ball_y = random(1,128);
+    Self_x = random(1,256);
+    Self_y = random(1,128);
+    Other_x = random(1,256);
+    Other_y = random(1,128);
+
+    distance_S = BallDistance(Ball_x, Ball_y, Self_x, Self_y);
+    distance_O = BallDistance(Ball_x, Ball_y, Other_x, Other_y);
+    
+
+      // uses distance to the ball to tell rover what to do
+    
+      if ((distance_S < distance_O) & (distance_S > 20)){
+        state = 1;
+      }
+      else if ((distance_S > distance_O) & (distance_O > 20)){
+        state = 2;
+      }
+      else if (distance_S < 20){
+        state = 0;
+      }
+//----------------------------------------------------------------------------------------------------------
+// An interrupt will occur whenever the raspberry pi sends updated location info to the arduino. This interrupt will determine
+// which state the rover should be in. 
+
+if (update_t/2500 == n) {
+
+    Serial.println(distance_S);
+    n++;
+
+    if (state == 0){
+      // stop moving
+      Serial.println("Stopped");
+    }
+    
+    else if (state == 1){
+      // face towards ball and approach it
+      Serial.println("Turning and moving towards ball");
+      
+      while (turning_f == 1){
+            // rotate towards ball
+//            if (rover is aligned with ball){
+//              turning_f = 0;
+//            }
+      }
+     while (moving_f == 1){
+            // move towards ball
+//            if (rover is within certain distance from ball){
+//              moving_f = 0;
+//              state = 3;
+//            }
+     }
+    }
+    
+    else if (state == 2){
+      // face towards predicted ball location and move to "catch" it
+      Serial.println("Turning and positioning");
+
+      while (turning_f == 1){
+            // rotate towards ball
+//            if (rover is aligned with balls predicted location){
+//              turning_f = 0;
+//            }
+      }
+     while (moving_f == 1){
+            // move towards ball
+//            if (rover is within certain distance from ball){
+//              moving_f = 0;
+//              state = 3;
+//            }
+     } 
+    }
+    else if (state == 3){
+      // attempt to kick the ball
+      Serial.println("kicking ball");
+    } 
+  }
+}
+//-------------------------------end of main loop---------------------------------------------------------
+
+ // calculates distance between ball and given object
+int BallDistance(int B_x, int B_y, int x, int y) {
+    int distance_f = 0;
+    distance_f  = sqrt(sq(Ball_x - x) + sq(Ball_y - y));
+    return distance_f;
+}
+
+//----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
 
