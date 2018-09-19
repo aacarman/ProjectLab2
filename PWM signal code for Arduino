@@ -1,0 +1,42 @@
+Here’s the Arduino code:
+const int IN1 = 7;
+const int IN2 = 6;
+const int IN3 = 5;
+const int IN4 = 4;
+
+const int ENA = 9;
+const int ENB = 3;
+
+void setup() {
+  pinMode (IN1, OUTPUT);
+  pinMode (IN2, OUTPUT);
+  pinMode (IN3, OUTPUT);
+  pinMode (IN4, OUTPUT);
+pinMode (ENA, OUTPUT);
+pinMode (ENB, OUTPUT);
+// put your setup code here, to run once:
+
+}
+
+void loop() {
+//analogWrite(ENA, 255);  
+//analogWrite(ENB, 255); 
+
+analogWrite(ENA, 125);  
+analogWrite(ENB, 125); 
+
+//analogWrite(ENA, 75);  
+//analogWrite(ENB, 75); 
+
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  // put your main code here, to run repeatedly:
+
+}
+
+So first we need to define the pins and some variables needed for the program. In the setup section we need to set the pin modes and 
+the initial rotation direction of the motor. In the loop section we start by reading the value that we get from 0 to 255 for the PWM signal, 
+or that’s 0 to 100% duty cycle of the PWM signal. 
+Then using the analogWrite() function we send the PWM signal to the Enable pin of the L298N board, which actually drives the motor.
