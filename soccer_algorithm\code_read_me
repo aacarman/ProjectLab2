@@ -11,11 +11,16 @@
   
 //-------------------------------------------------------------------------------------------------------------------------------------
   
-//Here is the basic decision making code. Coded in the Arduino IDE.
-
-// Code for soccer playing robots. Made by Ryan Gray. Copyright 2018
+// Code for soccer playing robots. Made by Ryan Gray.
 // A raspberry pi pulls information from a server and sends this info to the arduino. The arduino will use this information to play soccer. 
-// The arduino will be receiving information using SPI master/slave and the data is received by use of RF. 
+// The arduino will be receiving information using SPI form by way of the NRF24L01 transceiver.
+
+// libraries for RF
+
+#include<SPI.h>
+#include<RF24.h>
+
+// global variables
 
 int Ball_x = random(0,256);
 int Ball_y = random(0,128);
@@ -31,11 +36,27 @@ int n = 1;
 int turning_f = 0;
 int moving_f = 0;
 
+// pins for RF
+
+RF24 radio(9,10);
+
 
 void setup() {
-  // put your setup code here, to run once:
+  // set baud rate for serial monitor and a seed for coordinate generation
+  while(!Serial);
   Serial.begin(9600);
   randomSeed(1);
+
+  // setup for RF
+  radio.begin();
+  radio.setPALevel(RF24_PA_MAX);
+  radio.setChannel(0x76);
+  radio.openWritingPipe(0xF0F0F0F0E1LL);
+  const uint64_t pipe = (0xE8E8F0F0E1LL);
+  radio.openReadingPipe(1, pipe);
+
+  radio.enableDynamicPayloads();
+  radio.powerUp();
 
 }
 
@@ -74,6 +95,26 @@ if (update_t/2500 == n) {
 
     Serial.println(distance_S);
     n++;
+
+    // example for receiving data
+    radio.startListening();
+    Serial.println("Radio ON.");
+    char receivedMessage[32] = {0};
+    if(radio.available()){
+      radio.read(receivedMessage, sizeof(receivedMessage));
+      Serial.println(receivedMessage);
+      Serial.println("Radio OFF");
+      radio.stopListening();
+
+      String stringMessage(receivedMessage);
+
+    if(stringMessage == "GETSTRING"){
+      Serial.println("Looks like they want a string!");
+      const char text[] = "Yo wassup, haha";
+      radio.write(text, sizeof(text));
+      Serial.println("We sent our message.");
+    }
+  }
 
     if (state == 0){
       // stop moving
@@ -131,6 +172,8 @@ int BallDistance(int B_x, int B_y, int x, int y) {
     distance_f  = sqrt(sq(Ball_x - x) + sq(Ball_y - y));
     return distance_f;
 }
+
+
 
 //----------------------------------------------------------------------------------------------------------------------------
 
