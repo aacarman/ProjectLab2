@@ -1,0 +1,13 @@
+In this part exlains how to control DC motors using Arduino.
+PWM DC Motor Control
+PWM, or pulse width modulation is a technique which allows us to adjust the average value of the voltage that’s going to the 
+electronic device by turning on and off the power at a fast rate. The average voltage depends on the duty cycle,
+or the amount of time the signal is ON versus the amount of time the signal is OFF in a single period of time.
+o depending on the size of the motor, we can simply connect an Arduino PWM output to the base of transistor or the gate of a MOSFET and
+control the speed of the motor by controlling the PWM output.The low power Arduino PWM signal switches on and off the gate at the MOSFET 
+through which the high power motor is driven.
+H-Bridge DC Motor Control
+On the other hand, for controlling the rotation direction, we just need to inverse the direction of the current flow through the motor, 
+and the most common method of doing that is by using an H-Bridge. An H-Bridge circuit contains four switching elements, transistors or 
+MOSFETs, with the motor at the center forming an H-like configuration. By activating two particular switches at the same time
+we can change the direction of the current flow, thus change the rotation direction of the motor.
