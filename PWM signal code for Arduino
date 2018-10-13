@@ -39,4 +39,4 @@ analogWrite(ENB, 125);
 So first we need to define the pins and some variables needed for the program. In the setup section we need to set the pin modes and 
 the initial rotation direction of the motor. In the loop section we start by reading the value that we get from 0 to 255 for the PWM signal, 
 or that’s 0 to 100% duty cycle of the PWM signal. 
-Then using the analogWrite() function we send the PWM signal to the Enable pin of the L298N board, which actually drives the motor.
+Then using the analogWrite() function we send the PWM signal to the Enable pin of the Motor Control Board, which actually drives the motor.
