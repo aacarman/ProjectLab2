@@ -7,7 +7,7 @@ Depending on the size of the motor, we can simply connect an Arduino PWM output 
 control the speed of the motor by controlling the PWM output.The low power Arduino PWM signal switches on and off the gate at the MOSFET 
 through which the high power motor is driven.
 H-Bridge DC Motor Control
-On the other hand, for controlling the rotation direction, we just need to inverse the direction of the current flow through the motor, 
-and the most common method of doing that is by using an H-Bridge. An H-Bridge circuit contains four switching elements, transistors or 
-MOSFETs, with the motor at the center forming an H-like configuration. By activating two particular switches at the same time
-we can change the direction of the current flow, thus change the rotation direction of the motor.
+To control the rotation direction, we just need to inverse the direction of the current flow through the motor, 
+and the most common method of doing that is by using an Motor Control Board. An Motor Control Board circuit contains four switching elements, 
+transistors or MOSFETs, with the motor at the center forming a Motor Control Board configuration. By activating two particular switches 
+at the same time we can change the direction of the current flow, thus change the rotation direction of the motor.
