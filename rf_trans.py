@@ -1,12 +1,12 @@
-from time import sleep              # creates a delay
-from lib_nrf24 import NRF24         # radio library
-import spidev                       # SPI library
-import RPi.GPIO as GPIO             # GPIO pins
+from time import sleep                       # creates a delay
+from lib_nrf24 import NRF24                  # radio library
+import spidev                                # SPI library
+import RPi.GPIO as GPIO                      # GPIO pins
 
-GPIO.setmode(GPIO.BCM)              # set GPIO mode as BCM mode (not physical)
+GPIO.setmode(GPIO.BCM)                       # set GPIO mode as BCM mode (not physical)
 
 pipes = [[0xE8, 0xE8, 0xF0, 0xF0, 0xE1],     # where the data is going to be stored for writing/reading
-         [0xF0, 0xF0, 0xF0, 0xF0, 0xE1]]
+         [0xF0, 0xF0, 0xF0, 0xF0, 0xE1]]     # this is the address on the NRF board
 
 radio = NRF24(GPIO, spidev.SpiDev())         # initialize radio object
 
