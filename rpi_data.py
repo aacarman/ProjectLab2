@@ -108,7 +108,7 @@ while(1):                                    # creates an infinite loop to conti
     t_blue_tri_x = transform(256, t_corn_x2, t_corn_x1, blue_tri_x)
     t_blue_tri_y = transform(128, t_corn_y2, t_corn_y1, blue_tri_y)
 
-    tx_array = [t_ball_x, t_ball_y, t_red_cir_x, t_red_cir_y, \             # put all of the data into an array
+    tx_array = [t_ball_x, t_ball_y, t_red_cir_x, t_red_cir_y, \
                 t_red_sqr_x, t_red_sqr_y, t_red_tri_x, t_red_tri_y, \
                 t_blu_cir_x, t_blu_cir_y, t_blu_sqr_x, t_blu_sqr_y, \
                 t_blu_tri_x, t_blu_tri_y]
@@ -116,6 +116,6 @@ while(1):                                    # creates an infinite loop to conti
     buf = tx_array                           # create a list of data (must be shorter than 32, values must be 0 <= x <= 255)
     radio.write(buf)                         # write the data to the radio
     print ("sent"),                          # print what we wrote
-    print (data)                             
+    print (buf)                             
 
     sleep(1)    # sleeps for 1 second
