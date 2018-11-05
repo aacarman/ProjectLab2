@@ -7,9 +7,12 @@
 # Instructor: Derek Johnston
 # Class Code-Section: ECE 3332-302
 # 
-# Current Revision: 2.00
+# Current Revision: 2.10
 # 
 # Revision History:
+#
+# 2.10: Added initial delay to account for the time it takes to connect to
+#       the myRIO LAN.
 #
 # 2.00: Added RF transmission. Data is aligned in an array, and then transmit
 #       through an NRF module.
@@ -43,7 +46,9 @@ def transform(resolution, x2, x1, xin):
     m = float(float(resolution-1)/float(x2-x1))
     xT = float(m)*float(xin-x1)
     return xT
-  
+
+sleep(15)
+
 GPIO.setmode(GPIO.BCM)                       # set GPIO mode as BCM mode (not physical)
 
 pipes = [[0xE8, 0xE8, 0xF0, 0xF0, 0xE1],     # where the data is going to be stored for writing/reading
