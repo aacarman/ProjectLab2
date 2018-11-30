@@ -1,0 +1,294 @@
+// Code for soccer playing robots. Written by Ryan Gray.
+// A raspberry pi pulls information from a server and sends this info to the arduino. The arduino will use this information to play soccer. 
+// The arduino will be receiving information using SPI form by way of the NRF24L01 transceiver.
+
+// libraries for RF
+
+#include<SPI.h>
+#include<RF24.h>
+
+// global variables
+
+byte Ball_x = 0;
+byte Ball_y = 0;
+
+//-------------------------------- our team
+
+byte Self_x = 0;
+byte Self_y = 0;
+
+byte Other_x = 0;
+byte Other_y = 0;
+
+byte goalie_x = 0;
+byte goalie_y = 0;
+
+//-------------------------------- opposite team
+
+byte Op_circ_x = 0;
+byte Op_circ_y = 0;
+
+byte Op_sqr_x = 0;
+byte Op_sqr_y = 0;
+
+byte Op_tri_x = 0;
+byte Op_tri_y = 0;
+
+//-------------------------------- 
+int Cir_x;
+int Cir_y;
+
+
+int Last_x = 0;
+int Last_y = 0;
+int distance_S = 0;
+int distance_O = 0;
+int state = 0;
+unsigned long update_t = 0;
+int n = 1;
+int turning_f = 0;
+int moving_f = 0;
+unsigned long rot_time = 0;
+unsigned long t = 0;
+int current_degree = 0;
+byte turn_state = 1;
+byte ctstate = 1;
+
+// pins for RF Comm.
+
+RF24 radio(9,10);
+
+// pins for motor control
+
+const int IN1 = 7;
+const int IN2 = 6;
+const int IN3 = 8;
+const int IN4 = 4;
+
+const int ENA = 5;
+const int ENB = 3;
+bool shit = 1;
+
+void setup() {
+  // set baud rate for serial monitor and a seed for coordinate generation
+  while(!Serial);
+  Serial.begin(9600);
+
+  // setup for RF
+  radio.begin();
+  radio.setPALevel(RF24_PA_MAX);
+  radio.setChannel(0x76);
+  radio.setDataRate(RF24_1MBPS);
+  radio.openWritingPipe(0xF0F0F0F0E1LL);
+  const uint64_t pipe = (0xE8E8F0F0E1LL);
+  radio.openReadingPipe(1, pipe);
+
+  radio.enableDynamicPayloads();
+  radio.powerUp();
+
+  // motor setup
+
+  pinMode (IN1, OUTPUT);
+  pinMode (IN2, OUTPUT);
+  pinMode (IN3, OUTPUT);
+  pinMode (IN4, OUTPUT);
+  pinMode (ENA, OUTPUT);
+  pinMode (ENB, OUTPUT);
+  pinMode (A5, INPUT);
+  analogWrite(ENA, 190);
+  analogWrite(ENB, 170);
+}
+
+void loop() {
+
+//----------------------------------------------------------------------------------------------------------
+// receiving the coordinate data
+    // example for receiving data
+    //char receivedMessage[32] = {0};
+    byte receivedMessage[32] = {0};
+    radio.startListening();
+    delay(10);
+    while(!radio.available()){
+
+    }
+    radio.read(receivedMessage, radio.getDynamicPayloadSize());
+    delay(10);
+    radio.stopListening();
+
+
+    Ball_x = receivedMessage[0];
+    Ball_y = receivedMessage[1];
+
+    Cir_x = receivedMessage[2];
+    Cir_y = receivedMessage[3];
+ 
+    Other_x = receivedMessage[4];
+    Other_y = receivedMessage[5];
+    
+    Self_x = receivedMessage[6];
+    Self_y = receivedMessage[7];
+
+    Op_circ_x = receivedMessage[8];
+    Op_circ_y = receivedMessage[9];
+
+    Op_sqr_x = receivedMessage[10];
+    Op_sqr_y = receivedMessage[11];
+
+    Op_tri_x = receivedMessage[12];
+    Op_tri_y = receivedMessage[13];
+
+// executing states
+
+    if (abs(Ball_y - Self_y) <= 10) {
+      if(Ball_x > Self_x) {
+        turn_state = 0;
+      }
+      else {
+        turn_state = 2;
+      }
+    }
+    else if(Ball_y < Self_y) {
+      turn_state = 1;
+    }
+    else if(Ball_y > Self_y) {
+      turn_state = 3;
+    }
+    
+    if(turn_state != ctstate) {
+      if (turn_state == ((ctstate+1)%4)) {
+        state = 3;
+      }
+      else {
+        state = 2;
+      }
+    }
+    else if(turn_state == ctstate) {
+      state = 1;
+    }
+
+    for (int i = 0; i < radio.getDynamicPayloadSize(); i++) {
+      Serial.print(byte(receivedMessage[i]));
+      Serial.print(" ");
+    }
+    Serial.println();
+    
+    Serial.print("Current state: ");
+    Serial.println(state);
+
+    Serial.print("Current turn_state: ");
+    Serial.println(ctstate);
+
+    Serial.print("Target turn_state: ");
+    Serial.println(turn_state);
+
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+
+    delay(500);
+
+    if (state == 0){
+      // stop moving
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, LOW);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, LOW);
+      delay(1000);
+    }
+    
+    else if (state == 1){
+      // move forward
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+      delay(300);
+    }
+    else if (state == 2) {
+      // turn right
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+      delay(750);
+      if(ctstate == 0) {
+        ctstate = 3;
+      }
+      else {
+        ctstate--;
+      }
+    }
+    else if (state == 3) {
+      //turn left
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+      delay(750);
+      ctstate++;
+      ctstate%=4;
+    }
+}
+    
+//-------------------------------end of main loop---------------------------------------------------------
+
+ // calculates distance between ball and given object
+byte BallDistance(int B_x, int B_y, int x, int y) {
+    byte distance_f = 0;
+    distance_f  = sqrt(sq(Ball_x - x) + sq(Ball_y - y));
+    return distance_f;
+}
+
+// find angle to turn towards ball
+double RotateTime(int L_x, int L_y, int S_x, int S_y, int B_x, int B_y ){
+  
+       double deg;
+       double dotP;
+       double magLS;
+       double magBS;
+       double turn_time;
+
+       double LSvect_x = 0; 
+       double LSvect_y = 0; 
+
+       double BSvect_x = 0; 
+       double BSvect_y = 0; 
+       
+       LSvect_x = L_x - S_x; 
+       LSvect_y = L_y - S_y; 
+
+       BSvect_x = B_x - S_x; 
+       BSvect_y = B_y - S_y; 
+
+       dotP = (LSvect_x*BSvect_x) + (LSvect_y*BSvect_y);
+
+       magLS = sqrt(sq(LSvect_x) + sq(LSvect_y));
+       magBS = sqrt(sq(BSvect_x) + sq(BSvect_y));
+
+       deg = acos(dotP/(magLS*magBS))*(180/PI);
+       Serial.print("Turn ");
+       Serial.print(180-deg);
+       Serial.println(" degrees");
+       if((180 - deg) < 5) {
+        return 0;
+       }
+       else if ((dotP == 0) && (magLS == 0)){
+
+          Serial.println("my fat fucking nuts");
+          return 0;
+        
+       }
+       else {
+        turn_time = (((180-deg)*4000)/360)+4000;
+       }
+       Serial.println("Time to turn: ");
+       Serial.println(turn_time);
+       return turn_time;
+}
+
+float giveVal(float m, float x1, float y1, float x) {
+  float y = 0;
+  y = m*(x-x1)+y1;
+  return y;
+}
