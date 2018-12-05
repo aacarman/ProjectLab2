@@ -1,4 +1,4 @@
-// Code for soccer playing robots. Written by Ryan Gray.
+// Code for soccer playing robots. Written by Aaron Carman.
 // A raspberry pi pulls information from a server and sends this info to the arduino. The arduino will use this information to play soccer. 
 // The arduino will be receiving information using SPI form by way of the NRF24L01 transceiver.
 
@@ -23,6 +23,9 @@ byte Other_y = 0;
 byte goalie_x = 0;
 byte goalie_y = 0;
 
+int val = 0;
+bool ball_flag = 0;
+
 //-------------------------------- opposite team
 
 byte Op_circ_x = 0;
@@ -38,6 +41,7 @@ byte Op_tri_y = 0;
 int Cir_x;
 int Cir_y;
 
+int threshold = 0; 
 
 int Last_x = 0;
 int Last_y = 0;
@@ -97,19 +101,37 @@ void setup() {
   pinMode (A5, INPUT);
   analogWrite(ENA, 190);
   analogWrite(ENB, 170);
+
+  threshold = analogRead(A5);
 }
 
 void loop() {
 
+if((millis() < 30000) && !ball_flag) {
+  
 //----------------------------------------------------------------------------------------------------------
 // receiving the coordinate data
     // example for receiving data
     //char receivedMessage[32] = {0};
+
+    val = analogRead(A5);
+    if (val > (threshold + 75)) {
+      ball_flag = 1;
+    } 
+    
     byte receivedMessage[32] = {0};
+
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+
+    delay(100);
+    
     radio.startListening();
     delay(10);
     while(!radio.available()){
-
+      
     }
     radio.read(receivedMessage, radio.getDynamicPayloadSize());
     delay(10);
@@ -181,13 +203,6 @@ void loop() {
     Serial.print("Target turn_state: ");
     Serial.println(turn_state);
 
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, LOW);
-
-    delay(500);
-
     if (state == 0){
       // stop moving
       digitalWrite(IN1, LOW);
@@ -230,65 +245,18 @@ void loop() {
       ctstate%=4;
     }
 }
+  else if(millis() < 40000) {
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+  }
+  else {
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+  }
+}
     
 //-------------------------------end of main loop---------------------------------------------------------
-
- // calculates distance between ball and given object
-byte BallDistance(int B_x, int B_y, int x, int y) {
-    byte distance_f = 0;
-    distance_f  = sqrt(sq(Ball_x - x) + sq(Ball_y - y));
-    return distance_f;
-}
-
-// find angle to turn towards ball
-double RotateTime(int L_x, int L_y, int S_x, int S_y, int B_x, int B_y ){
-  
-       double deg;
-       double dotP;
-       double magLS;
-       double magBS;
-       double turn_time;
-
-       double LSvect_x = 0; 
-       double LSvect_y = 0; 
-
-       double BSvect_x = 0; 
-       double BSvect_y = 0; 
-       
-       LSvect_x = L_x - S_x; 
-       LSvect_y = L_y - S_y; 
-
-       BSvect_x = B_x - S_x; 
-       BSvect_y = B_y - S_y; 
-
-       dotP = (LSvect_x*BSvect_x) + (LSvect_y*BSvect_y);
-
-       magLS = sqrt(sq(LSvect_x) + sq(LSvect_y));
-       magBS = sqrt(sq(BSvect_x) + sq(BSvect_y));
-
-       deg = acos(dotP/(magLS*magBS))*(180/PI);
-       Serial.print("Turn ");
-       Serial.print(180-deg);
-       Serial.println(" degrees");
-       if((180 - deg) < 5) {
-        return 0;
-       }
-       else if ((dotP == 0) && (magLS == 0)){
-
-          Serial.println("my fat fucking nuts");
-          return 0;
-        
-       }
-       else {
-        turn_time = (((180-deg)*4000)/360)+4000;
-       }
-       Serial.println("Time to turn: ");
-       Serial.println(turn_time);
-       return turn_time;
-}
-
-float giveVal(float m, float x1, float y1, float x) {
-  float y = 0;
-  y = m*(x-x1)+y1;
-  return y;
-}
