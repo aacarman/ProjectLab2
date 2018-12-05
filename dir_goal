@@ -1,6 +1,8 @@
-// Code for soccer playing robots. Written by Ryan Gray.
+// Code for soccer playing robots. Written by Aaron Carman.
 // A raspberry pi pulls information from a server and sends this info to the arduino. The arduino will use this information to play soccer. 
 // The arduino will be receiving information using SPI form by way of the NRF24L01 transceiver.
+
+// THIS CODE IS OBSOLETE. _90dega & _90degb are used currently.
 
 // libraries for RF
 
