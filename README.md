@@ -1,5 +1,6 @@
 # ProjectLab2
 Aaron Carman, Berdi Hummedov, Ryan Gray 
+
 To achieve the goal of an autonomous team of soccer playing robots, various technologies have to be incorporated including hardware 
 design, building circuits, distributing systems, communication.
 A camera above the field is used to get a complete view of the game, which is sent to the robots.
